@@ -48,11 +48,11 @@ class Record(object):
         if schema is not None:
             if topic not in schema_dict:
                 regist_schema(topic, schema)
-            schema_dict[key] = schema
+            schema_dict[topic] = schema
         else:
             if topic not in schema_dict:
                 regist_schema(topic, default_schema)
-            schema_dict[key] = default_schema
+            schema_dict[topic] = default_schema
 
         self.topic = topic
         self.key = key
