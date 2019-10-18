@@ -1,6 +1,9 @@
 import json
 import time
-import apiclient 
+import requests
+import time
+import hashlib
+
 default_schema = """
 {
     \"name\": \"sensor\",
@@ -44,11 +47,11 @@ class Record(object):
     def __init__(self, topic, key: str, value: object, schema=None):
         if schema is not None:
             if topic not in schema_dict:
-                apiclient.regist_schema(topic, schema)
+                regist_schema(topic, schema)
             schema_dict[key] = schema
         else:
             if topic not in schema_dict:
-                apiclient.regist_schema(topic, default_schema)
+                regist_schema(topic, default_schema)
             schema_dict[key] = default_schema
 
         self.topic = topic
@@ -62,15 +65,60 @@ class Record(object):
         return str(json.dumps(tmp))
 
 
-if __name__ == "__main__":
-    r = Record("sensor-test", "aaa",
-               {"value": 5, "createdTime": int(round(time.time() * 1000))})
-    print(r.to_json())
-
-
 class SensorData(object):
     def __init__(self, createdTime, value, name=None):
         self.createdTime = createdTime
         self.value = value
         if name is not None:
             self.name = name
+
+
+appkey = 'pi'
+secretkey = 'abc123'
+
+api_url = "http://databus-api.free4inno.com"
+
+
+def get(url, params={}):
+    t = int(time.time() * 1000)
+    sign = get_sign(appkey, secretkey, t)
+    params['appkey'] = appkey
+    params['timestamp'] = t
+    params['sign'] = sign
+    return requests.get(url, params)
+
+
+def post(url, data={}):
+    t = int(time.time() * 1000)
+    sign = get_sign(appkey, secretkey, t)
+    data['appkey'] = appkey
+    data['timestamp'] = t
+    data['sign'] = sign
+    return requests.post(url, data)
+
+
+def get_sign(appkey, secretkey, t):
+    tc = str(t)
+    sign = ''
+    m = hashlib.md5()
+    m.update(sign.encode('utf8'))
+    sign = m.hexdigest()
+    m = hashlib.md5()
+    m.update((sign + appkey + secretkey + tc).encode('utf8'))
+    sign = m.hexdigest()
+    return sign
+
+
+def regist_schema(topic, schema):
+    r = post(api_url + "/topics/" + topic + "/schema", data={"schema": schema})
+    print(r.content)
+
+
+def get_schema(topic):
+    r = get(api_url + "/topics/" + topic + "/schema")
+    print(r.content)
+
+
+if __name__ == "__main__":
+    regist_schema("api-test", record.default_schema)
+    get_schema("api-test")

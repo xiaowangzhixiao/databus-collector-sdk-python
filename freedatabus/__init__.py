@@ -57,6 +57,3 @@ def sync_send(topic, c):
                       data={'topic': topic, 'c': c})
     return r
     # print(r.content)
-
-
-__all__ = ["apiclient","record"]
