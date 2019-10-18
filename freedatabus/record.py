@@ -46,6 +46,8 @@ class Record(object):
                 apiclient.regist_schema(topic, schema)
             schema_dict[key] = schema
         else:
+            if topic not in schema_dict:
+                apiclient.regist_schema(topic, default_schema)
             schema_dict[key] = default_schema
 
         self.topic = topic
