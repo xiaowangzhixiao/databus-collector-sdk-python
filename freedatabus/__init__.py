@@ -48,12 +48,13 @@ def send(a_record):
 def sync_send(a_record):
     r = requests.post(url+'/rest/data',
                       data={'topic': a_record.topic, 'c': '[' + a_record.to_json() + ']'})
+    print(r.content)
     return r
-    # print(r.content)
 
 
 def sync_send(topic, c):
+    print(c)
     r = requests.post(url+'/rest/data',
                       data={'topic': topic, 'c': c})
+    print(r.content)
     return r
-    # print(r.content)
